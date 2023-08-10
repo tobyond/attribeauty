@@ -19,28 +19,40 @@ class TestAttribeauty < Minitest::Test
     assert MyClass.new(third: "12.34").third, 12.34
   end
 
-  def test_it_handles_boolean
+  def test_it_handles_boolean_true_as_string
     assert MyClass.new(forth: "TRUE").forth, true
+  end
+
+  def test_it_handles_boolean_true_as_true
+    assert MyClass.new(forth: true).forth, true
+  end
+
+  def test_it_handles_boolean_false_as_string
+    assert !MyClass.new(forth: "FALSE").forth, true
+  end
+
+  def test_it_handles_boolean_false_as_false
+    assert !MyClass.new(forth: false).forth, true
   end
 
   def test_it_handles_boolean_predicate
     assert MyClass.new(forth: "TRUE").forth?, true
   end
 
-  def test_it_handles_boolean_time
+  def test_it_handles_time
     assert MyClass.new(fifth: "2014-12-25 14:00:00 +0100").fifth,
            Time.new(2014, 12, 25, 13, 0o0, 0o0, 0)
   end
 
   def test_configuration_types
-    assert Attribeauty::Configuration.new.types, Attribeauty::Cast::BASE_TYPES
+    assert Attribeauty::Configuration.new.types, Attribeauty::TypeCaster::BASE_TYPES
   end
 
   def test_configuration_adding
     Attribeauty.configure do |config|
       config.types[:koala] = MyClass::Koala
     end
-    new_types = Attribeauty::Cast::BASE_TYPES.merge(koala: MyClass::Koala)
+    new_types = Attribeauty::TypeCaster::BASE_TYPES.merge(koala: MyClass::Koala)
 
     assert Attribeauty.configuration, new_types
   end

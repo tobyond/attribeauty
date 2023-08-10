@@ -2,7 +2,7 @@
 
 require_relative "attribeauty/version"
 require_relative "attribeauty/base"
-require_relative "attribeauty/cast"
+require_relative "attribeauty/type_caster"
 require_relative "attribeauty/configuration"
 require "date"
 require "time"

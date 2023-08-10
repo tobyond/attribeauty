@@ -8,7 +8,7 @@ module Attribeauty
     attr_accessor :types
 
     def initialize
-      @types = Cast::BASE_TYPES.dup
+      @types = TypeCaster::BASE_TYPES.dup
     end
   end
 end

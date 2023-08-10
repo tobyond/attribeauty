@@ -11,7 +11,7 @@ module Attribeauty
       @attributes[name] = type
 
       class_eval(<<-CODE, __FILE__, __LINE__ + 1)
-        def #{name}=(value); @#{name} = Cast.cast(value, #{type.inspect}); end
+        def #{name}=(value); @#{name} = TypeCaster.run(value, #{type.inspect}); end
 
         def #{name};@#{name};end
       CODE

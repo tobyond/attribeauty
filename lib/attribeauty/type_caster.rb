@@ -8,7 +8,7 @@ require_relative "types/time"
 
 module Attribeauty
   # base cast for types
-  class Cast
+  class TypeCaster
     BASE_TYPES = {
       float: Types::Float,
       integer: Types::Integer,
@@ -17,7 +17,7 @@ module Attribeauty
       string: Types::String
     }.freeze
 
-    def self.cast(value, type)
+    def self.run(value, type)
       return nil if value.nil?
 
       all_types = Attribeauty.configuration.types
