@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "types/string"
-require_relative "types/integer"
-require_relative "types/float"
-require_relative "types/boolean"
-require_relative "types/time"
-
 module Attribeauty
   # base cast for types
   class TypeCaster

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    attribeauty (0.1.0)
+    attribeauty (0.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -34,15 +34,18 @@ GEM
       parser (>= 3.2.1.0)
     ruby-progressbar (1.13.0)
     unicode-display_width (2.4.2)
+    zeitwerk (2.6.16)
 
 PLATFORMS
   x86_64-darwin-20
+  x86_64-darwin-22
 
 DEPENDENCIES
   attribeauty!
-  minitest (~> 5.0)
-  rake (~> 13.0)
-  rubocop (~> 1.21)
+  minitest
+  rake
+  rubocop
+  zeitwerk
 
 BUNDLED WITH
-   2.4.10
+   2.5.3

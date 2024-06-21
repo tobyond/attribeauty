@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "There are so many of these, I just needed this one."
   spec.homepage = "https://github.com/tobyond/attribeauty"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.6.0"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/tobyond/attribeauty"

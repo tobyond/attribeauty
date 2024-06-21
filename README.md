@@ -62,7 +62,57 @@ instance.wild_animal # => "the_wildest_animals_are_koalas"
 
 ```
 
-Note, failing to call `inspect` on the value when casting is likely to raise an error.
+To use rails types add to your config:
+```
+# config/initializers/attribeauty.rb
+
+Rails.application.reloader.to_prepare do
+  Attribeauty.configure do |config|
+    config.types[:string] = ActiveModel::Type::String
+    config.types[:boolean] = ActiveModel::Type::Boolean
+    config.types[:date] = ActiveModel::Type::Date
+    config.types[:time] = ActiveModel::Type::Time
+    config.types[:datetime] = ActiveModel::Type::DateTime
+    config.types[:float] = ActiveModel::Type::Float
+    config.types[:integer] = ActiveModel::Type::Integer
+  end
+end
+
+```
+
+## Params
+
+Experimental params sanitizer is now available. This will cast your params, and remove elements you want to exclude if `nil` or `empty`
+
+```
+# app/controllers/my_controller.rb
+class MyController
+  def update
+    MyRecord.update(update_params)
+   
+    redirect_to index_path
+  end
+
+  private
+
+  def params_filter
+    Attribeauty::Params.with(request.params)
+  end
+
+  def update_params
+    params_filter.accept do
+      attribute :title, :string, allow_nil: false, required: true
+      attribute :email do
+        attribute :address, :string, allow_empty: false
+        attribute :valid, :boolean, allow_nil: false
+        attribute :ip_address, :string, allow_blank: true
+      end
+    end
+  end
+```
+
+See `test/test_params.rb` for what is expected.
+
 
 ## Development
 

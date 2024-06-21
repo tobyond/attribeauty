@@ -9,7 +9,7 @@ module Attribeauty
         "0", :"0",
         "f", :f,
         "F", :F,
-        "false", :false,
+        "false", false,
         "FALSE", :FALSE,
         "off", :off,
         "OFF", :OFF

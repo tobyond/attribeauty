@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "attribeauty/version"
-require_relative "attribeauty/base"
-require_relative "attribeauty/type_caster"
-require_relative "attribeauty/configuration"
 require "date"
 require "time"
 
@@ -21,3 +17,10 @@ module Attribeauty
     end
   end
 end
+
+require "zeitwerk"
+
+loader = Zeitwerk::Loader.for_gem
+loader.ignore("#{__dir__}/kamal/sshkit_with_ext.rb")
+loader.setup
+loader.eager_load # We need all commands loaded.
