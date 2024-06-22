@@ -2,6 +2,7 @@
 
 require "date"
 require "time"
+require "forwardable"
 
 # Module
 module Attribeauty

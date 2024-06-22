@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.3.1] - 2024-06-22
+
+- added container to exclude the "head" param
+
 ## [0.3.0] - 2024-06-21
 
 - Experimental params coercion

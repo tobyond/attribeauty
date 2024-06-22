@@ -1,7 +1,7 @@
 # Attribeauty
 
 I just wanted a quick, simple way to initialize mutable objects. This is it.
-There are so many of these, but none were what I wanted.
+There are so many of these (notably rails Attributes api), but none were what I wanted.
 
 ## Installation
 
@@ -13,7 +13,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
     $ gem install attribeauty
 
-## Usage
+## Base
 
 Inherit from `Attribeauty::Base` and then add attribute with the type you want.
 Initialize with these and they will be cast to that attribute.
@@ -109,6 +109,44 @@ class MyController
       end
     end
   end
+```
+
+If you have a "head" param, like in rails, you can exclude it like this:
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+   
+    redirect_to index_path
+  end
+
+  private
+
+  # your params look like this:
+  # { user: { title: "woo", email: { address: "hmm@yep.com" } } }
+  #
+  def params_filter
+    Attribeauty::Params.with(request.params)
+  end
+
+  # using container will exclude the value and yield:
+  # { title: "woo", email: { address: "hmm@yep.com" } } 
+  #
+  def update_params
+    params_filter.accept do
+      container :user do
+        attribute :title, :string, allow_nil: false, required: true
+        attribute :email do
+          attribute :address, :string, allow_empty: false
+          attribute :valid, :boolean, allow_nil: false
+          attribute :ip_address, :string, allow_blank: true
+        end
+      end
+    end
+  end
+end
+
 ```
 
 See `test/test_params.rb` for what is expected.

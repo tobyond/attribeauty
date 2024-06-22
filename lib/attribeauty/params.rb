@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "forwardable"
-
 module Attribeauty
   class Params
     extend Forwardable
@@ -30,6 +28,12 @@ module Attribeauty
 
     def [](key)
       to_h[key]
+    end
+
+    def container(name)
+      @request_params = request_params[name]
+
+      yield
     end
 
     # rubocop:disable Naming::BlockForwarding
