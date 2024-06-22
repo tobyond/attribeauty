@@ -84,6 +84,8 @@ end
 
 Experimental params sanitizer is now available. This will cast your params, and remove elements you want to exclude if `nil` or `empty`
 
+Why is this needed? Params arrive into the controller in a messy state. Booleans are not ready for caparison, integers are often strings, empty strings, and nils abound. Rails does the casting of params at the model, which is simple and elegant, but in many cases, these params are used for a multitude of things before hitting the database. I truly believe we need to cast them before they do anything.
+
 ```
 # app/controllers/my_controller.rb
 class MyController
