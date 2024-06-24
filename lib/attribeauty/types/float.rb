@@ -5,6 +5,8 @@ module Attribeauty
     # custom float type
     class Float
       def cast(value)
+        return if value.nil?
+
         Float(value)
       end
     end

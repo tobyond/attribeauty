@@ -5,6 +5,8 @@ module Attribeauty
     # custom integer type
     class Integer
       def cast(value)
+        return if value.nil?
+
         Integer(value)
       end
     end

@@ -29,3 +29,6 @@ Metrics/PerceivedComplexity:
 
 Metrics/CyclomaticComplexity:
   Enabled: false
+
+Naming::BlockForwarding:
+  Enabled: false

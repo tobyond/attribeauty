@@ -5,6 +5,8 @@ module Attribeauty
     # custom Time type
     class Time
       def cast(value)
+        return if value.nil?
+
         case value
         when Time
           value

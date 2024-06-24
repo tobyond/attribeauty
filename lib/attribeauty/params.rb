@@ -44,31 +44,18 @@ module Attribeauty
       yield
     end
 
-    # rubocop:disable Naming::BlockForwarding
     def attribute(name, type = nil, **args, &block)
       value = request_params[name]
       return if value.nil? && args[:required].nil?
 
       if block_given?
-        @to_h[name] =
-          if value.is_a?(Array)
-            value.map do |val|
-              params = self.class.with(val).accept(&block)
-              @errors.push(*params.errors)
-              params
-            end.reject(&:empty?)
-          else
-            params = self.class.with(value).accept(&block)
-            @errors.push(*params.errors)
-            params
-          end
+        @to_h[name.to_sym] = vals_from_nested(value, &block)
       else
-        validator = Validator.run(name, type, value, **args)
-        @to_h[name.to_sym] = validator.value if validator.valid?
+        validator = Validator.run(name, value, type, **args)
         @errors.push(*validator.errors)
+        @to_h[name.to_sym] = validator.value if validator.valid?
       end
     end
-    # rubocop:enable Naming::BlockForwarding
 
     def inspect
       to_h.inspect
@@ -80,6 +67,22 @@ module Attribeauty
 
     def strict?
       strict
+    end
+
+    private
+
+    def vals_from_nested(value, &block)
+      if value.is_a?(Array)
+        value.map do |val|
+          params = self.class.with(val).accept(&block)
+          @errors.push(*params.errors)
+          params.to_h
+        end.reject(&:empty?)
+      else
+        params = self.class.with(value).accept(&block)
+        @errors.push(*params.errors)
+        params.to_h
+      end
     end
   end
 end

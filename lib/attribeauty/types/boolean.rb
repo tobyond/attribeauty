@@ -16,6 +16,8 @@ module Attribeauty
       ].to_set.freeze
 
       def cast(value)
+        return false if value.nil?
+
         !FALSE_VALUES.include?(value)
       end
     end

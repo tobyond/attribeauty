@@ -5,6 +5,8 @@ module Attribeauty
     # custom string type
     class String
       def cast(value)
+        return if value.nil?
+
         String(value)
       end
     end

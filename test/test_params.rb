@@ -221,4 +221,26 @@ class TestParams < Minitest::Test
 
     assert_equal result.to_h.to_s, params.to_s
   end
+
+  def test_with_missing_type
+    params = { name: "Me" }
+    params_filter = params_object(params)
+    result = params_filter.accept do
+      attribute :name
+    end
+
+    assert_equal result.to_h.to_s, params.to_s
+  end
+
+  def test_with_missing_type_and_allow_nil_false
+    params = { name: "Me", age: nil }
+    params_filter = params_object(params)
+    result = params_filter.accept do
+      attribute :name
+      attribute :age, allow_nil: false
+    end
+    expected_result = { name: "Me" }
+
+    assert_equal result.to_h.to_s, expected_result.to_s
+  end
 end
