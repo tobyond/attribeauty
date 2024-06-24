@@ -151,7 +151,46 @@ end
 
 ```
 
-See `test/test_params.rb` for what is expected.
+If you want to raise an error, rather than just return the errors in an array, use the `accept!` method. Will raise `Attribeauty::MissingAttributeError` with the required elements:
+
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+   
+    redirect_to index_path
+  end
+
+  private
+
+  # your params look like this:
+  # { user: { profile: [{ address: { street_name: "Main St" } }] } }
+  #
+  def params_filter
+    Attribeauty::Params.with(request.params)
+  end
+
+  # This following with the accept! method
+  # will raise: Attribeauty::MissingAttributeError, "title required, email required"
+  #
+  def update_params
+    params_filter.accept! do
+      container :user do
+        attribute :title, :string, allow_nil: false, required: true
+        attribute :email do
+          attribute :address, :string, allow_empty: false
+          attribute :valid, :boolean, allow_nil: false
+          attribute :ip_address, :string, allow_blank: true
+        end
+      end
+    end
+  end
+end
+
+```
+
+See `test/test_params.rb` for more examples
 
 
 ## Development

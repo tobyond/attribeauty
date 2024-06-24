@@ -10,7 +10,7 @@ module Attribeauty
       new(request_params)
     end
 
-    attr_reader :allow_nil, :prefix, :request_params, :acceptables, :to_h, :errors
+    attr_reader :allow_nil, :prefix, :request_params, :acceptables, :to_h, :errors, :strict
 
     def initialize(request_params)
       @request_params = request_params.transform_keys(&:to_sym)
@@ -21,7 +21,15 @@ module Attribeauty
     def accept(&)
       instance_eval(&)
 
+      raise MissingAttributeError, errors.join(", ") if errors.any? && strict?
+
       self
+    end
+
+    def accept!(&)
+      @strict = true
+
+      accept(&)
     end
 
     def to_hash = to_h
@@ -68,6 +76,10 @@ module Attribeauty
 
     def valid?
       errors.empty?
+    end
+
+    def strict?
+      strict
     end
   end
 end

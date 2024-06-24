@@ -187,4 +187,38 @@ class TestParams < Minitest::Test
     assert_equal result.errors, ["title required", "email required"]
     assert_equal result.valid?, false
   end
+
+  def test_deeply_nested_errors_and_validity_with_container_with_strict
+    params = { user: { profile: [{ address: { street_name: "Main St" } }] } }
+    params_filter = params_object(params)
+
+    assert_raises Attribeauty::MissingAttributeError, "title required, email required" do
+      params_filter.accept! do
+        container :user do
+          attribute :title, :string, allow_nil: false, required: true
+          attribute :profile do
+            attribute :email, :string, required: true
+            attribute :address do
+              attribute :street_name, :string, allow_nil: false
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def test_with_empty_params
+    params = {}
+    params_filter = params_object(params)
+    result = params_filter.accept do
+      attribute :title, :string, allow_nil: false, required: true
+      attribute :email do
+        attribute :address, :string, allow_empty: false
+        attribute :valid, :boolean, allow_nil: false
+        attribute :ip_address, :string, allow_blank: true
+      end
+    end
+
+    assert_equal result.to_h.to_s, params.to_s
+  end
 end

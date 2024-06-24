@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.3.2] - 2024-06-24
+
+- added accept! method to raise error if "required's" are missing
+
 ## [0.3.1] - 2024-06-22
 
 - added container to exclude the "head" param
