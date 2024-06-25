@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.2] - 2024-06-25
+
+- getting and setting vals in params
+
 ## [0.4.1] - 2024-06-25
 
 - Global default_args in accept, to apply your conditions to all attributes
