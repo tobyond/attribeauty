@@ -11,11 +11,11 @@ class TestParams < Minitest::Test
     params = { title: "woo", email: { address: "hmm@yep.com" } }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string
+        attribute :valid, :boolean
+        attribute :ip_address, :string
       end
     end
 
@@ -26,11 +26,11 @@ class TestParams < Minitest::Test
     params = { title: "woo", email: { address: "", ip_address: "192.168.0.1" } }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string, exclude_if: :empty?
+        attribute :valid, :boolean
+        attribute :ip_address, :string
       end
     end
     expected_result = { title: "woo", email: { ip_address: "192.168.0.1" } }.to_s
@@ -44,16 +44,17 @@ class TestParams < Minitest::Test
       email: [
         { address: "hmm@yep.com" },
         { address: "yo@man.com" },
-        { address: "" }
+        { address: "" },
+        { address: nil }
       ]
     }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string, exclude_if: [:empty?, :nil?]
+        attribute :valid, :boolean
+        attribute :ip_address, :string
       end
     end
     expected_result = {
@@ -74,11 +75,11 @@ class TestParams < Minitest::Test
     }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :profile do
-        attribute :email, :string, allow_nil: false
+        attribute :email, :string
         attribute :address do
-          attribute :street_name, :string, allow_nil: false
+          attribute :street_name, :string
         end
       end
     end
@@ -97,11 +98,11 @@ class TestParams < Minitest::Test
     params = { title: 1, email: { address: "hmm@yep.com", valid: "FALSE", ip_address: 100.2 } }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string
+        attribute :valid, :boolean
+        attribute :ip_address, :string
       end
     end
     expected_result = {
@@ -120,11 +121,11 @@ class TestParams < Minitest::Test
     }
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :profile do
         attribute :email, :string, required: true
         attribute :address do
-          attribute :street_name, :string, allow_nil: false
+          attribute :street_name, :string
         end
       end
     end
@@ -144,11 +145,11 @@ class TestParams < Minitest::Test
     params_filter = params_object(params)
     result = params_filter.accept do
       container :user do
-        attribute :title, :string, allow_nil: false, required: true
+        attribute :title, :string, required: true
         attribute :email do
-          attribute :address, :string, allow_empty: false
-          attribute :valid, :boolean, allow_nil: false
-          attribute :ip_address, :string, allow_blank: true
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string
         end
       end
     end
@@ -168,11 +169,11 @@ class TestParams < Minitest::Test
     params_filter = params_object(params)
     result = params_filter.accept do
       container :user do
-        attribute :title, :string, allow_nil: false, required: true
+        attribute :title, :string, required: true
         attribute :profile do
           attribute :email, :string, required: true
           attribute :address do
-            attribute :street_name, :string, allow_nil: false
+            attribute :street_name, :string
           end
         end
       end
@@ -195,11 +196,11 @@ class TestParams < Minitest::Test
     assert_raises Attribeauty::MissingAttributeError, "title required, email required" do
       params_filter.accept! do
         container :user do
-          attribute :title, :string, allow_nil: false, required: true
+          attribute :title, :string, required: true
           attribute :profile do
             attribute :email, :string, required: true
             attribute :address do
-              attribute :street_name, :string, allow_nil: false
+              attribute :street_name, :string
             end
           end
         end
@@ -211,11 +212,11 @@ class TestParams < Minitest::Test
     params = {}
     params_filter = params_object(params)
     result = params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string
+        attribute :valid, :boolean
+        attribute :ip_address, :string
       end
     end
 
@@ -232,12 +233,12 @@ class TestParams < Minitest::Test
     assert_equal result.to_h.to_s, params.to_s
   end
 
-  def test_with_missing_type_and_allow_nil_false
+  def test_with_missing_type_and_exclude_if_nil
     params = { name: "Me", age: nil }
     params_filter = params_object(params)
     result = params_filter.accept do
       attribute :name
-      attribute :age, allow_nil: false
+      attribute :age, exclude_if: :nil?
     end
     expected_result = { name: "Me" }
 

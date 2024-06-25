@@ -103,17 +103,18 @@ class MyController
 
   def update_params
     params_filter.accept do
-      attribute :title, :string, allow_nil: false, required: true
+      attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, allow_empty: false
-        attribute :valid, :boolean, allow_nil: false
-        attribute :ip_address, :string, allow_blank: true
+        attribute :address, :string
+        attribute :valid, :boolean
+        attribute :ip_address, :string, exclude_if: :empty?
       end
     end
   end
 ```
 
-If you have a "head" param, like in rails, you can exclude it like this:
+If you have a "head" param, like in rails, you can exclude it, also note the `exclude_if` option, this will exclude the value completely, if it evaluates to true.
+`exclude_if` will accept a single method call (`:nil?`) or an array (`[:nil?, :empty?]`)
 
 ```
 class MyController
@@ -126,7 +127,7 @@ class MyController
   private
 
   # your params look like this:
-  # { user: { title: "woo", email: { address: "hmm@yep.com" } } }
+  # { user: { title: "woo", email: { address: "hmm@yep.com", ip_address: "" } } }
   #
   def params_filter
     Attribeauty::Params.with(request.params)
@@ -138,11 +139,11 @@ class MyController
   def update_params
     params_filter.accept do
       container :user do
-        attribute :title, :string, allow_nil: false, required: true
+        attribute :title, :string, required: true
         attribute :email do
-          attribute :address, :string, allow_empty: false
-          attribute :valid, :boolean, allow_nil: false
-          attribute :ip_address, :string, allow_blank: true
+          attribute :address, :string, exclude_if: [:empty?, :nil?]
+          attribute :valid, :boolean
+          attribute :ip_address, :string, exclude_if: :empty?
         end
       end
     end
@@ -177,11 +178,11 @@ class MyController
   def update_params
     params_filter.accept! do
       container :user do
-        attribute :title, :string, allow_nil: false, required: true
+        attribute :title, :string, exclude_if: :nil?, required: true
         attribute :email do
-          attribute :address, :string, allow_empty: false
-          attribute :valid, :boolean, allow_nil: false
-          attribute :ip_address, :string, allow_blank: true
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string
         end
       end
     end

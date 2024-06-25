@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.4.0] - 2024-06-25
+
+- Breaking change:
+- `:allow_nil`, and `:allow_empty` have been replaced with `:exclude_if`
+- see readme for details
+
 ## [0.3.4] - 2024-06-24
 
 - tiny refactor

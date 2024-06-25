@@ -10,7 +10,7 @@ module Attribeauty
       new(request_params)
     end
 
-    attr_reader :allow_nil, :prefix, :request_params, :acceptables, :to_h, :errors, :strict
+    attr_reader :prefix, :request_params, :acceptables, :to_h, :errors, :strict
 
     def initialize(request_params)
       @request_params = request_params.transform_keys(&:to_sym)
