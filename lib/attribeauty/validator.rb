@@ -13,7 +13,8 @@ module Attribeauty
       @type = type
       @original_val = original_val
       @default = args[:default]
-      @required = args[:required] if args[:required] == true
+      args.delete_if { |key, value| key == :required && value == false }
+      @required = args[:required]
       @excludes = args[:exclude_if]
 
       @valid = true
@@ -21,15 +22,16 @@ module Attribeauty
     end
 
     def run
-      if type.nil?
-        @value = original_val
-      else
-        set_default
-        cast_value
-        handle_missing_required
-        handle_excludes
-      end
+      handle_missing_original_val!
+      handle_missing_required!
+      handle_missing_type
 
+      set_default
+      cast_value
+      handle_excludes
+
+      self
+    rescue ValueInvalidError
       self
     end
 
@@ -37,7 +39,31 @@ module Attribeauty
       valid
     end
 
+    def required?
+      required
+    end
+
     private
+
+    def handle_missing_original_val!
+      return unless !required? && original_val.nil?
+
+      @valid = false 
+      raise ValueInvalidError
+    end
+
+    # only returning errors if required is missing, not if nil?, or :empty?
+    def handle_missing_required!
+      return unless required? && original_val.nil?
+
+      errors << "#{name} required"
+      @valid = false
+      raise ValueInvalidError
+    end
+
+    def handle_missing_type
+      @value = original_val if type.nil?
+    end
 
     def set_default
       return unless original_val.nil? && !default.nil?
@@ -46,25 +72,13 @@ module Attribeauty
     end
 
     def cast_value
-      @value = TypeCaster.run(original_val, type)
-    end
-
-    # only returning errors if required is missing, not if nil?, or :empty?
-    def handle_missing_required
-      return unless required? && original_val.nil?
-
-      errors << "#{name} required"
-      @valid = false
+      @value ||= TypeCaster.run(original_val, type)
     end
 
     def handle_excludes
       return if excludes.nil? || !valid?
 
       @valid = ![*excludes].flatten.any? { |exclude| value.public_send(exclude) }
-    end
-
-    def required?
-      required
     end
   end
 end

@@ -8,6 +8,7 @@ require "forwardable"
 module Attribeauty
   class Error < StandardError; end
   class MissingAttributeError < StandardError; end
+  class ValueInvalidError < StandardError; end
 
   class << self
     def configuration

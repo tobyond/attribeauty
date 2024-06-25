@@ -191,6 +191,43 @@ end
 
 ```
 
+what if you want to require all attributes? If you pass the `required: true` or `exclude_if: :nil?` with the `accept`, it will be applied to all attributes. 
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+   
+    redirect_to index_path
+  end
+
+  private
+
+  # your params look like this:
+  # { user: { profile: [{ address: { street_name: "Main St" } }] } }
+  #
+  def params_filter
+    Attribeauty::Params.with(request.params)
+  end
+
+  # exclude_if and required will be passed onto all attributes
+  #
+  def update_params
+    params_filter.accept exclude_if: :nil?, required: true do
+      container :user do
+        attribute :title, :string, 
+        attribute :email do
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string
+        end
+      end
+    end
+  end
+end
+
+```
+
 See `test/test_params.rb` for more examples
 
 
