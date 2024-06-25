@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.3.4] - 2024-06-24
+
+- tiny refactor
+
 ## [0.3.3] - 2024-06-24
 
 - handle nil in types. Big refactor

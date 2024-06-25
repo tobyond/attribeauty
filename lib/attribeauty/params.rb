@@ -44,17 +44,13 @@ module Attribeauty
       yield
     end
 
+    # 
     def attribute(name, type = nil, **args, &block)
       value = request_params[name]
-      return if value.nil? && args[:required].nil?
+      return if required?(value, **args)
+      return hash_from_nested(name, value, &block) if block_given?
 
-      if block_given?
-        @to_h[name.to_sym] = vals_from_nested(value, &block)
-      else
-        validator = Validator.run(name, value, type, **args)
-        @errors.push(*validator.errors)
-        @to_h[name.to_sym] = validator.value if validator.valid?
-      end
+      value_from_validator(name, value, type, **args)
     end
 
     def inspect
@@ -71,17 +67,28 @@ module Attribeauty
 
     private
 
-    def vals_from_nested(value, &block)
-      if value.is_a?(Array)
-        value.map do |val|
-          params = self.class.with(val).accept(&block)
+    def required?(value, **args)
+      value.nil? && args[:required].nil?
+    end
+
+    def value_from_validator(name, value, type, **args)
+      validator = Validator.run(name, value, type, **args)
+      @errors.push(*validator.errors)
+      @to_h[name.to_sym] = validator.value if validator.valid?
+    end
+
+    def hash_from_nested(name, value, &block)
+      @to_h[name.to_sym] = 
+        if value.is_a?(Array)
+          value.map do |val|
+            params = self.class.with(val).accept(&block)
+            @errors.push(*params.errors)
+            params.to_h
+          end.reject(&:empty?)
+        else
+          params = self.class.with(value).accept(&block)
           @errors.push(*params.errors)
           params.to_h
-        end.reject(&:empty?)
-      else
-        params = self.class.with(value).accept(&block)
-        @errors.push(*params.errors)
-        params.to_h
       end
     end
   end
