@@ -39,6 +39,10 @@ module Attribeauty
       to_h[key]
     end
 
+    def []=(key, value)
+      to_h[key] = value
+    end
+
     def container(name)
       @request_params = request_params[name]
 

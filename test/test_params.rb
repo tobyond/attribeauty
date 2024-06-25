@@ -280,4 +280,22 @@ class TestParams < Minitest::Test
     assert_equal result.to_h.to_s, params.to_s
     assert_equal result.valid?, true
   end
+
+  def test_when_setting_vals
+    params = { title: "woo", email: { address: "hmm@yep.com" } }
+    params_filter = params_object(params)
+    result = params_filter.accept do
+      attribute :title, :string, required: true
+      attribute :email do
+        attribute :address, :string
+        attribute :valid, :boolean
+        attribute :ip_address, :string
+      end
+    end
+    result[:woo] = "hooo!"
+    expected_result = { title: "woo", email: { address: "hmm@yep.com" }, woo: "hooo!" }
+
+    assert_equal result.to_h.to_s, expected_result.to_s
+    assert_equal result[:title], "woo"
+  end
 end
