@@ -93,8 +93,9 @@ module Attribeauty
 
     def exclude_nil?
       return false if allows_array.include?(:nil?)
+      return false unless original_val.nil? && default.nil?
 
-      !required? && original_val.nil?
+      original_val.nil? && !required?
     end
 
     def allows_array

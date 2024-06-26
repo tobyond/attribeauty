@@ -22,6 +22,22 @@ class TestParams < Minitest::Test
     assert_equal result.to_h.to_s, params.to_s
   end
 
+  def test_when_already_valid_with_default_value
+    params = { title: "woo", email: { address: "hmm@yep.com" } }
+    params_filter = params_object(params)
+    result = params_filter.accept do
+      attribute :title, :string, required: true
+      attribute :email do
+        attribute :address, :string
+        attribute :valid, :boolean, default: true
+        attribute :ip_address, :string
+      end
+    end
+    expected_result = { title: "woo", email: { address: "hmm@yep.com", valid: true } }
+
+    assert_equal result.to_h.to_s, expected_result.to_s
+  end
+
   def test_when_empty_string
     params = { title: "woo", email: { address: "", ip_address: "192.168.0.1" } }
     params_filter = params_object(params)
@@ -54,12 +70,17 @@ class TestParams < Minitest::Test
       attribute :email do
         attribute :address, :string, exclude_if: %i[empty? nil?]
         attribute :valid, :boolean
-        attribute :ip_address, :string
+        attribute :ip_address, :string, default: "192.168.0.1"
       end
     end
     expected_result = {
       title: "woo",
-      email: [{ address: "hmm@yep.com" }, { address: "yo@man.com" }]
+      email: [
+        { address: "hmm@yep.com", ip_address: "192.168.0.1" },
+        { address: "yo@man.com", ip_address: "192.168.0.1"  },
+        { ip_address: "192.168.0.1" },
+        { ip_address: "192.168.0.1" }
+      ]
     }.to_s
 
     assert_equal result.to_h.to_s, expected_result

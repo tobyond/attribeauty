@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.4] - 2024-06-26
+
+- get `default:` working. Not expecting to use them since db will handle that, but nice to have?
+
 ## [0.4.3] - 2024-06-25
 
 - allow certain values with `allow` option
