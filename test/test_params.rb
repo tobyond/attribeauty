@@ -52,7 +52,7 @@ class TestParams < Minitest::Test
     result = params_filter.accept do
       attribute :title, :string, required: true
       attribute :email do
-        attribute :address, :string, exclude_if: [:empty?, :nil?]
+        attribute :address, :string, exclude_if: %i[empty? nil?]
         attribute :valid, :boolean
         attribute :ip_address, :string
       end
@@ -267,7 +267,7 @@ class TestParams < Minitest::Test
   def test_with_default_args_exclude_if_empty_and_nil
     params = { title: "", email: { address: "hmm@yep.com", ip_address: nil } }
     params_filter = params_object(params)
-    result = params_filter.accept exclude_if: [:nil?, :empty?] do
+    result = params_filter.accept exclude_if: %i[nil? empty?] do
       attribute :title, :string
       attribute :email do
         attribute :address, :string
@@ -297,5 +297,78 @@ class TestParams < Minitest::Test
 
     assert_equal result.to_h.to_s, expected_result.to_s
     assert_equal result[:title], "woo"
+  end
+
+  def test_with_default_args_exclude_if_empty_and_nil_and_allows
+    params = {
+      user: {
+        username: "user_1",
+        full_name: "Full Name",
+        bio: "",
+        allow_updates: nil,
+        email: { address: "hmm@yep.com" }
+      }
+    }
+
+    params_filter = params_object(params)
+    result = params_filter.accept exclude_if: %i[nil? empty?] do
+      container :user do
+        attribute :username, :string
+        attribute :full_name, :string
+        attribute :bio, :string, allow: %i[nil? empty?]
+        attribute :allow_updates, :boolean
+        attribute :email do
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string
+        end
+      end
+    end
+    expected_result = {
+      username: "user_1",
+      full_name: "Full Name",
+      bio: "",
+      email: { address: "hmm@yep.com" }
+    }
+
+    assert_equal result.to_h.to_s, expected_result.to_s
+    assert_equal result.valid?, true
+  end
+
+  def test_with_default_args_required_and_allows
+    params = {
+      user: {
+        username: "user_1",
+        full_name: nil,
+        bio: nil,
+        allow_updates: nil,
+        email: { address: "hmm@yep.com" }
+      }
+    }
+
+    params_filter = params_object(params)
+    result = params_filter.accept required: true do
+      container :user do
+        attribute :username, :string
+        attribute :full_name, :string
+        attribute :bio, :string, allow: %i[nil? empty?]
+        attribute :allow_updates, :boolean
+        attribute :email do
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string
+        end
+      end
+    end
+    expected_result = {
+      username: "user_1",
+      bio: nil,
+      email: { address: "hmm@yep.com" }
+    }
+    errors_array = ["full_name required", "allow_updates required", "valid required", "ip_address required"]
+
+    assert_equal result.to_h.to_s, expected_result.to_s
+    assert_equal result.valid?, false
+    assert_equal result.errors, errors_array
   end
 end

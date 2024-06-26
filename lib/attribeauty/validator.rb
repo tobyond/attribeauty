@@ -6,7 +6,8 @@ module Attribeauty
       new(name, type, original_val, **args).run
     end
 
-    attr_reader :original_val, :errors, :name, :type, :required, :default, :excludes, :value, :valid
+    attr_reader :original_val, :errors, :name, :type, :required,
+                :default, :excludes, :value, :valid, :allows
 
     def initialize(name, original_val, type = nil, **args)
       @name = name
@@ -15,6 +16,7 @@ module Attribeauty
       @default = args[:default]
       args.delete_if { |key, value| key == :required && value == false }
       @required = args[:required]
+      @allows = args[:allow]
       @excludes = args[:exclude_if]
 
       @valid = true
@@ -22,10 +24,11 @@ module Attribeauty
     end
 
     def run
+      handle_allows
       handle_missing_original_val!
       handle_missing_required!
-      handle_missing_type
 
+      handle_missing_type
       set_default
       cast_value
       handle_excludes
@@ -45,10 +48,17 @@ module Attribeauty
 
     private
 
-    def handle_missing_original_val!
-      return unless !required? && original_val.nil?
+    def handle_allows
+      return if allows.nil?
 
-      @valid = false 
+      @required = false if allows_array.include?(:nil?)
+      @excludes = excludes_array - allows_array
+    end
+
+    def handle_missing_original_val!
+      return unless exclude_nil?
+
+      @valid = false
       raise ValueInvalidError
     end
 
@@ -78,7 +88,21 @@ module Attribeauty
     def handle_excludes
       return if excludes.nil? || !valid?
 
-      @valid = ![*excludes].flatten.any? { |exclude| value.public_send(exclude) }
+      @valid = excludes_array.none? { |exclude| value.public_send(exclude) }
+    end
+
+    def exclude_nil?
+      return false if allows_array.include?(:nil?)
+
+      !required? && original_val.nil?
+    end
+
+    def allows_array
+      [*allows].flatten.compact
+    end
+
+    def excludes_array
+      [*excludes].flatten
     end
   end
 end

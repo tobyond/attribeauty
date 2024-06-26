@@ -192,6 +192,7 @@ end
 ```
 
 what if you want to require all attributes? If you pass the `required: true` or `exclude_if: :nil?` with the `accept`, it will be applied to all attributes. 
+You can also exclude a value from this by useing the `allows` option.
 
 ```
 class MyController
@@ -219,7 +220,7 @@ class MyController
         attribute :email do
           attribute :address, :string
           attribute :valid, :boolean
-          attribute :ip_address, :string
+          attribute :ip_address, :string, allows: :nil?
         end
       end
     end

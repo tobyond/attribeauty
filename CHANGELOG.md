@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.3] - 2024-06-25
+
+- allow certain values with `allow` option
+
 ## [0.4.2] - 2024-06-25
 
 - getting and setting vals in params

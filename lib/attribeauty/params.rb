@@ -49,7 +49,6 @@ module Attribeauty
       yield
     end
 
-    # 
     def attribute(name, type = nil, **args, &block)
       value = request_params[name]
       return hash_from_nested(name, value, &block) if block_given?
@@ -79,7 +78,7 @@ module Attribeauty
     end
 
     def hash_from_nested(name, value, &block)
-      result = 
+      result =
         if value.is_a?(Array)
           value.map do |val|
             params = self.class.with(val).accept(**default_args, &block)
@@ -90,7 +89,7 @@ module Attribeauty
           params = self.class.with(value).accept(**default_args, &block)
           @errors.push(*params.errors)
           params.to_h
-      end
+        end
 
       @to_h[name.to_sym] = result unless result.empty?
     end

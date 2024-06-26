@@ -24,11 +24,17 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Enabled: false
 
+Metrics/MethodLength:
+  Enabled: false
+
 Metrics/PerceivedComplexity:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
   Enabled: false
 
-Naming::BlockForwarding:
+Naming/BlockForwarding:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
   Enabled: false
