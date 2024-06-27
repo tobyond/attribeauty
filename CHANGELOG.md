@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.4.6] - 2024-06-28
+
+- unofficial support for auto generating rails models params filtering
+- no tests, and simply a script I'm using in an app to do the same
+
 ## [0.4.5] - 2024-06-27
 
 - using `root` instead of `container`, this is what serializers use

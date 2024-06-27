@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    attribeauty (0.4.5)
+    attribeauty (0.4.6)
 
 GEM
   remote: https://rubygems.org/

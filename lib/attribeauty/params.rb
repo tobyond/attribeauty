@@ -68,6 +68,20 @@ module Attribeauty
       strict
     end
 
+    def generate_for(model, *columns)
+      raise "Method requires Rails" unless defined?(Rails)
+
+      root_node = model.to_s.downcase.to_sym
+      cols = columns.map(&:to_s)
+      root root_node do
+        model.columns_hash.slice(*cols).each_value do |table|
+          attrs = table.name.to_sym, table.type
+          attrs << { exclude_if: :nil? } if table.null == false
+          attribute(*attrs)
+        end
+      end
+    end
+
     private
 
     def value_from_validator(name, value, type, **args)
