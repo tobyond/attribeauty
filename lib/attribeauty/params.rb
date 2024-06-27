@@ -43,7 +43,7 @@ module Attribeauty
       to_h[key] = value
     end
 
-    def container(name)
+    def root(name)
       @request_params = request_params[name]
 
       yield

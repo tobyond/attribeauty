@@ -133,12 +133,12 @@ class MyController
     Attribeauty::Params.with(request.params)
   end
 
-  # using container will exclude the value and yield:
+  # using root will exclude the value and yield:
   # { title: "woo", email: { address: "hmm@yep.com" } } 
   #
   def update_params
     params_filter.accept do
-      container :user do
+      root :user do
         attribute :title, :string, required: true
         attribute :email do
           attribute :address, :string, exclude_if: [:empty?, :nil?]
@@ -177,7 +177,7 @@ class MyController
   #
   def update_params
     params_filter.accept! do
-      container :user do
+      root :user do
         attribute :title, :string, exclude_if: :nil?, required: true
         attribute :email do
           attribute :address, :string
@@ -215,7 +215,7 @@ class MyController
   #
   def update_params
     params_filter.accept exclude_if: :nil?, required: true do
-      container :user do
+      root :user do
         attribute :title, :string, 
         attribute :email do
           attribute :address, :string

@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.5] - 2024-06-27
+
+- using `root` instead of `container`, this is what serializers use
+
 ## [0.4.4] - 2024-06-26
 
 - get `default:` working. Not expecting to use them since db will handle that, but nice to have?

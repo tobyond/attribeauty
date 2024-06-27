@@ -161,11 +161,11 @@ class TestParams < Minitest::Test
     assert_equal result.valid?, false
   end
 
-  def test_container_hash
+  def test_root_hash
     params = { user: { title: "woo", email: { address: "hmm@yep.com" } } }
     params_filter = params_object(params)
     result = params_filter.accept do
-      container :user do
+      root :user do
         attribute :title, :string, required: true
         attribute :email do
           attribute :address, :string
@@ -179,7 +179,7 @@ class TestParams < Minitest::Test
     assert_equal result.to_h.to_s, expected_result
   end
 
-  def test_deeply_nested_errors_and_validity_with_container
+  def test_deeply_nested_errors_and_validity_with_root
     params = {
       user: {
         profile: [
@@ -189,7 +189,7 @@ class TestParams < Minitest::Test
     }
     params_filter = params_object(params)
     result = params_filter.accept do
-      container :user do
+      root :user do
         attribute :title, :string, required: true
         attribute :profile do
           attribute :email, :string, required: true
@@ -210,13 +210,13 @@ class TestParams < Minitest::Test
     assert_equal result.valid?, false
   end
 
-  def test_deeply_nested_errors_and_validity_with_container_with_strict
+  def test_deeply_nested_errors_and_validity_with_root_with_strict
     params = { user: { profile: [{ address: { street_name: "Main St" } }] } }
     params_filter = params_object(params)
 
     assert_raises Attribeauty::MissingAttributeError, "title required, email required" do
       params_filter.accept! do
-        container :user do
+        root :user do
           attribute :title, :string, required: true
           attribute :profile do
             attribute :email, :string, required: true
@@ -333,7 +333,7 @@ class TestParams < Minitest::Test
 
     params_filter = params_object(params)
     result = params_filter.accept exclude_if: %i[nil? empty?] do
-      container :user do
+      root :user do
         attribute :username, :string
         attribute :full_name, :string
         attribute :bio, :string, allow: %i[nil? empty?]
@@ -369,7 +369,7 @@ class TestParams < Minitest::Test
 
     params_filter = params_object(params)
     result = params_filter.accept required: true do
-      container :user do
+      root :user do
         attribute :username, :string
         attribute :full_name, :string
         attribute :bio, :string, allow: %i[nil? empty?]
