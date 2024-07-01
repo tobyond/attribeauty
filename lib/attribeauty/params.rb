@@ -71,6 +71,9 @@ module Attribeauty
     # in Rails if you have a user model you can call
     # Attribeauty::Params.with(params.to_unsafe_h).generate_for(User, :username, :name, :age, :email)
     # It will grab the type, and add an exclude_if: for all with Null false
+    # Note, there are very few circumstances where you wouldn't want to just assign_attributes
+    # to the model, and use the types from there, but here you go.
+    # This api will never be tested or documented.
     def generate_for(model, *columns)
       raise "Method requires Rails" unless defined?(Rails)
 

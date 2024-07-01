@@ -28,6 +28,7 @@ class MyClass < Attribeauty::Base
   attribute :forth, :boolean
   attribute :fifth, :time
   attribute :sixth, :koala
+  attribute :seventh, :string, default: "Kangaroo"
 end
 
 instance = MyClass.new(first: 456)
@@ -36,6 +37,7 @@ instance.assign_attributes(second: "456")
 instance.second # => 456
 instance.first = 9000
 instance.first # => "9000"
+instance.seventh # => "Kangaroo"
 ```
 
 To add your own types, simply have a class that handles `MyClassName.new.cast(value)`:

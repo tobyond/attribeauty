@@ -86,6 +86,18 @@ class TestAttribeauty < Minitest::Test
 
     assert instance.first, "7890"
   end
+
+  def test_default_val
+    instance = MyClass.new(seventh: nil)
+
+    assert instance.seventh, "Seven"
+  end
+
+  def test_required_true
+    assert_raises Attribeauty::MissingAttributeError, "first required" do
+      RequiredClass.new(first: nil)
+    end
+  end
 end
 
 class MyClass < Attribeauty::Base
@@ -95,10 +107,15 @@ class MyClass < Attribeauty::Base
   attribute :forth, :boolean
   attribute :fifth, :time
   attribute :sixth, :koala
+  attribute :seventh, :string, default: "Seven"
 
   class Koala
     def cast(value)
       value.inspect.to_s << "_koalas"
     end
   end
+end
+
+class RequiredClass < Attribeauty::Base
+  attribute :first, :string, required: true
 end

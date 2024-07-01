@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.8] - 2024-07-01
+
+- allow args with base, so `required` and `default` can be used
+
 ## [0.4.7] - 2024-07-01
 
 - generate for fix, and added strict option.

@@ -2,14 +2,14 @@
 
 module Attribeauty
   class Validator
-    def self.run(name, type, original_val, **args)
-      new(name, type, original_val, **args).run
+    def self.run(name, original_val, type = nil, args = {})
+      new(name, original_val, type, args).run
     end
 
     attr_reader :original_val, :errors, :name, :type, :required,
                 :default, :excludes, :value, :valid, :allows
 
-    def initialize(name, original_val, type = nil, **args)
+    def initialize(name, original_val, type = nil, args = {})
       @name = name
       @type = type
       @original_val = original_val

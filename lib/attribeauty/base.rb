@@ -4,14 +4,18 @@ module Attribeauty
   # base class to inherit from
   # class MyClass < Attribeauty::Base
   class Base
-    def self.attribute(name, type)
+    def self.attribute(name, type, **args)
       @attributes ||= {}
       return if @attributes[name]
 
       @attributes[name] = type
 
       class_eval(<<-CODE, __FILE__, __LINE__ + 1)
-        def #{name}=(value); @#{name} = TypeCaster.run(value, #{type.inspect}); end
+        def #{name}=(value)
+          validator = Validator.run(#{name.inspect}, value, #{type.inspect}, #{args})
+          raise MissingAttributeError, validator.errors.join(', ') if validator.errors.any?
+          @#{name} = validator.value
+        end
 
         def #{name};@#{name};end
       CODE
