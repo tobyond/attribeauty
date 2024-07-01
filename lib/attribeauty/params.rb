@@ -44,7 +44,7 @@ module Attribeauty
     end
 
     def root(name)
-      @request_params = request_params[name]
+      @request_params = request_params[name].transform_keys(&:to_sym)
 
       yield
     end
@@ -68,6 +68,9 @@ module Attribeauty
       strict
     end
 
+    # in Rails if you have a user model you can call
+    # Attribeauty::Params.with(params.to_unsafe_h).generate_for(User, :username, :name, :age, :email)
+    # It will grab the type, and add an exclude_if: for all with Null false
     def generate_for(model, *columns)
       raise "Method requires Rails" unless defined?(Rails)
 
@@ -80,6 +83,14 @@ module Attribeauty
           attribute(*attrs)
         end
       end
+
+      self
+    end
+
+    def generate_for!(model, *columns)
+      @strict = true
+
+      generate_for(model, *columns)
     end
 
     private

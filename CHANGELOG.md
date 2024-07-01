@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.4.7] - 2024-07-01
+
+- generate for fix, and added strict option.
+- handle stringifying keys with root
+
 ## [0.4.6] - 2024-06-28
 
 - unofficial support for auto generating rails models params filtering
