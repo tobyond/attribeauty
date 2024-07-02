@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.4.9] - 2024-07-02
+
+- Updated README
+
 ## [0.4.8] - 2024-07-01
 
 - allow args with base, so `required` and `default` can be used

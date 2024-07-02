@@ -1,19 +1,204 @@
 # Attribeauty
 
-I just wanted a quick, simple way to initialize mutable objects. This is it.
-There are so many of these (notably rails Attributes api), but none were what I wanted.
+## Params
 
-## Installation
+`Attribeauty::Params` casts your params and removes elements you want to exclude if they are nil or empty.
 
-Install the gem and add to the application's Gemfile by executing:
+#### Why is this needed?
 
-    $ bundle add attribeauty
+`params` arrive in your controllers as strings—whether they represent integers, nil, dates, or anything else. Rails handles coercion at the Model level when these params are assigned as attributes. However, there are often many steps before your params are assigned. `Attribeauty::Params` elegantly ensures that your attributes start in their expected state before continuing their journey to their final destination.
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+#### Directions
 
-    $ gem install attribeauty
+First, let's set a `params_filter` object to accept rails `params.to_unsafe_h` in the `ApplicationController`
+
+```
+# app/controllers/application_controller.rb
+class ApplicationController
+  private
+
+  def params_filter
+    Attribeauty::Params.with(params.to_unsafe_h)
+  end
+end
+```
+
+The `params_filter` object here will take any ruby hash, `symbolize` the keys, and is now ready for the structure you want to provide.
+
+If a users controller receives the following params:
+
+```
+{
+  'user' => {
+    'username' => 'js_bach',
+    'full_name' => 'Johann Sebastian Bach',
+    'job_title' => 'Composer',
+    'age' => '43',
+    'salary' => nil,
+    'email' => {
+      'address' => 'js@bach.music'
+    }
+  }
+}
+```
+
+We can coerce them with into `create_params` with the following:
+
+
+```
+# app/controllers/my_controller.rb
+class UsersController < ApplicationController
+  def update
+    @user = Users::Creator.call(create_params)
+
+    if @user.valid?
+      redirect_to index_path, notice: 'Welcome to the app'
+    else
+      flash[:alert] = @user.errors.full_messages
+      render :edit
+    end
+  end
+
+  private
+
+  def create_params
+    params_filter.accept do
+      root :user do
+        attribute :username, :string, required: true
+        attribute :full_name, :string
+        attribute :job_title, :string, exclude_if: [:nil?, :empty?]
+        attribute :age, :integer
+        attribute :salary, :integer, exclude_if: :nil?
+        attribute :email do
+          attribute :address, :string, required: true
+          attribute :receive_updates, :boolean, default: false
+        end
+      end
+    end
+  end
+```
+
+The above will return a hash with the `age` integer cast to integer, the `salary` removed, and a `receive_updates` defaulted to `false`. The `root` `user` node will be removed too. If you wish to keep the root node, simply using `attribute` with a `block` will suffice. Below is the output from this:
+
+
+```
+{
+  'username' => 'js_bach',
+  'full_name' => 'Johann Sebastian Bach',
+  'job_title' => 'Composer',
+  'age' => 43,
+  'email' => {
+    'address' => 'js@bach.music',
+    'receive_updates' => false
+  }
+}
+
+```
+#### Errors
+
+Errors will return in an errors array, and will generate from when `required: true` values are missing:
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+
+    redirect_to index_path
+  end
+
+  private
+
+  # with the following params:
+  # { user: { username: nil } }
+
+  # update_params.errors => ["username required"]
+
+  def update_params
+    params_filter.accept do
+      root :user do
+        attribute :username, :string, required: true
+      end
+    end
+  end
+end
+
+```
+
+#### Raising Errors
+
+If you want to raise an error, rather than just return the errors in an array, use the `accept!` method. Will raise `Attribeauty::MissingAttributeError` with the required elements:
+
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+
+    redirect_to index_path
+  end
+
+  private
+
+  # with the following params:
+  # { user: { username: nil } }
+
+  # calling update_params
+  # will raise: Attribeauty::MissingAttributeError, "username required"
+
+  def update_params
+    params_filter.accept do
+      root :user do
+        attribute :username, :string, required: true
+      end
+    end
+  end
+end
+
+```
+
+#### Require all
+
+What if you want to require all attributes? If you pass the `required: true` or `exclude_if: :nil?` with the `accept`, it will be applied to all attributes. 
+You can also exclude a value from this by using the `allows` option.
+
+```
+class MyController
+  def update
+    MyRecord.update(update_params)
+   
+    redirect_to index_path
+  end
+
+  private
+
+  # with the following params:
+  # { user: { profile: [{ address: { street_name: "Main St" } }] } }
+
+  # required: true will be passed onto all attributes, except ip_address
+  
+  def update_params
+    params_filter.accept required: true do
+      root :user do
+        attribute :title, :string, 
+        attribute :email do
+          attribute :address, :string
+          attribute :valid, :boolean
+          attribute :ip_address, :string, allows: :nil?
+        end
+      end
+    end
+  end
+end
+
+```
+
+See `test/test_params.rb` for more examples
+
 
 ## Base
+
+I needed a straightforward way to initialize mutable objects, and this solution provides exactly that. While there are many existing options (notably the Rails Attributes API), I opted to build my own.
+
 
 Inherit from `Attribeauty::Base` and then add attribute with the type you want.
 Initialize with these and they will be cast to that attribute.
@@ -82,157 +267,18 @@ end
 
 ```
 
-## Params
+#### Is this for rails only?
+Nope, any ruby program will work with this.
 
-Experimental params sanitizer is now available. This will cast your params, and remove elements you want to exclude if `nil` or `empty`
+## Installation
 
-Why is this needed? Params arrive into the controller in a messy state. Booleans are not ready for caparison, integers are often strings, empty strings, and nils abound. Rails does the casting of params at the model, which is simple and elegant, but in many cases, these params are used for a multitude of things before hitting the database. I truly believe we need to cast them before they do anything.
+Install the gem and add to the application's Gemfile by executing:
 
-```
-# app/controllers/my_controller.rb
-class MyController
-  def update
-    MyRecord.update(update_params)
-   
-    redirect_to index_path
-  end
+    $ bundle add attribeauty
 
-  private
+If bundler is not being used to manage dependencies, install the gem by executing:
 
-  def params_filter
-    Attribeauty::Params.with(request.params)
-  end
-
-  def update_params
-    params_filter.accept do
-      attribute :title, :string, required: true
-      attribute :email do
-        attribute :address, :string
-        attribute :valid, :boolean
-        attribute :ip_address, :string, exclude_if: :empty?
-      end
-    end
-  end
-```
-
-If you have a "head" param, like in rails, you can exclude it, also note the `exclude_if` option, this will exclude the value completely, if it evaluates to true.
-`exclude_if` will accept a single method call (`:nil?`) or an array (`[:nil?, :empty?]`)
-
-```
-class MyController
-  def update
-    MyRecord.update(update_params)
-   
-    redirect_to index_path
-  end
-
-  private
-
-  # your params look like this:
-  # { user: { title: "woo", email: { address: "hmm@yep.com", ip_address: "" } } }
-  #
-  def params_filter
-    Attribeauty::Params.with(request.params)
-  end
-
-  # using root will exclude the value and yield:
-  # { title: "woo", email: { address: "hmm@yep.com" } } 
-  #
-  def update_params
-    params_filter.accept do
-      root :user do
-        attribute :title, :string, required: true
-        attribute :email do
-          attribute :address, :string, exclude_if: [:empty?, :nil?]
-          attribute :valid, :boolean
-          attribute :ip_address, :string, exclude_if: :empty?
-        end
-      end
-    end
-  end
-end
-
-```
-
-If you want to raise an error, rather than just return the errors in an array, use the `accept!` method. Will raise `Attribeauty::MissingAttributeError` with the required elements:
-
-
-```
-class MyController
-  def update
-    MyRecord.update(update_params)
-   
-    redirect_to index_path
-  end
-
-  private
-
-  # your params look like this:
-  # { user: { profile: [{ address: { street_name: "Main St" } }] } }
-  #
-  def params_filter
-    Attribeauty::Params.with(request.params)
-  end
-
-  # This following with the accept! method
-  # will raise: Attribeauty::MissingAttributeError, "title required, email required"
-  #
-  def update_params
-    params_filter.accept! do
-      root :user do
-        attribute :title, :string, exclude_if: :nil?, required: true
-        attribute :email do
-          attribute :address, :string
-          attribute :valid, :boolean
-          attribute :ip_address, :string
-        end
-      end
-    end
-  end
-end
-
-```
-
-what if you want to require all attributes? If you pass the `required: true` or `exclude_if: :nil?` with the `accept`, it will be applied to all attributes. 
-You can also exclude a value from this by useing the `allows` option.
-
-```
-class MyController
-  def update
-    MyRecord.update(update_params)
-   
-    redirect_to index_path
-  end
-
-  private
-
-  # your params look like this:
-  # { user: { profile: [{ address: { street_name: "Main St" } }] } }
-  #
-  def params_filter
-    Attribeauty::Params.with(request.params)
-  end
-
-  # exclude_if and required will be passed onto all attributes
-  #
-  def update_params
-    params_filter.accept exclude_if: :nil?, required: true do
-      root :user do
-        attribute :title, :string, 
-        attribute :email do
-          attribute :address, :string
-          attribute :valid, :boolean
-          attribute :ip_address, :string, allows: :nil?
-        end
-      end
-    end
-  end
-end
-
-```
-
-See `test/test_params.rb` for more examples
-
+    $ gem install attribeauty
 
 ## Development
 
