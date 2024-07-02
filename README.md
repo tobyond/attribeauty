@@ -48,6 +48,8 @@ We can coerce them with into `create_params` with the following:
 ```ruby
 # app/controllers/my_controller.rb
 class UsersController < ApplicationController
+  def edit; end
+
   def update
     @user = Users::Creator.call(create_params)
 
@@ -76,6 +78,7 @@ class UsersController < ApplicationController
       end
     end
   end
+end
 ```
 
 The above will return a hash with the `age` integer cast to integer, the `salary` removed, and a `receive_updates` defaulted to `false`. The `root` `user` node will be removed too. If you wish to keep the root node, simply using `attribute` with a `block` will suffice. Below is the output from this:
@@ -94,16 +97,61 @@ The above will return a hash with the `age` integer cast to integer, the `salary
 }
 
 ```
-#### Errors
 
-Errors will return in an errors array, and will generate from when `required: true` values are missing:
+`Attribeauty::Params` can handle nested arrays and nested hashes with the same `accept`:
+
+```ruby
+  # {
+  #   "username" => "js_bach",
+  #   "full_name" => "Johann Sebastian Bach",
+  #   "job_title" => "Composer",
+  #   "age" => 43,
+  #   "email" => [
+  #     { "address" => "js@bach.music", "secondary" => false },
+  #     { "address" => "papa@bach.music", "secondary" => true }
+  #   ]
+  # }
+  #
+  # or
+  #
+  # {
+  #   "username" => "js_bach",
+  #   "full_name" => "Johann Sebastian Bach",
+  #   "job_title" => "Composer",
+  #   "age" => 43,
+  #   "email" => { "address" => "js@bach.music", "secondary" => false }
+  # }
+  def create_params
+    params_filter.accept do
+      attribute :username, :string, required: true
+      attribute :full_name, :string
+      attribute :job_title, :string, exclude_if: [:nil?, :empty?]
+      attribute :age, :integer
+      attribute :salary, :integer, exclude_if: :nil?
+      attribute :email do
+        attribute :address, :string, required: true
+        attribute :secondary, :boolean, default: false
+      end
+    end
+  end
+```
+
+#### Error handling
+
+`Attribeauty::Params` has rudimentary error handling, and will return an errors array when `required: true` values are missing:
 
 ```ruby
 class MyController
-  def update
-    MyRecord.update(update_params)
+  def edit; end
 
-    redirect_to index_path
+  def update
+    if params_filter.errors.any?
+      flash[:alert] = params.errors.join(', ')
+      render :edit
+    else
+      MyRecord::Updater.call(update_params)
+      redirect_to index_path
+    end
   end
 
   private
@@ -132,7 +180,9 @@ If you want to raise an error, rather than just return the errors in an array, u
 ```ruby
 class MyController
   def update
-    MyRecord.update(update_params)
+    MyRecord::Updater.call(update_params)
+    # calling update_params
+    # will raise: Attribeauty::MissingAttributeError, "username required"
 
     redirect_to index_path
   end
@@ -141,9 +191,6 @@ class MyController
 
   # with the following params:
   # { user: { username: nil } }
-
-  # calling update_params
-  # will raise: Attribeauty::MissingAttributeError, "username required"
 
   def update_params
     params_filter.accept do
