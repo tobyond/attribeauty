@@ -12,7 +12,7 @@
 
 First, let's set a `params_filter` object to accept rails `params.to_unsafe_h` in the `ApplicationController`
 
-```
+```ruby
 # app/controllers/application_controller.rb
 class ApplicationController
   private
@@ -27,7 +27,7 @@ The `params_filter` object here will take any ruby hash, `symbolize` the keys, a
 
 If a users controller receives the following params:
 
-```
+```ruby
 {
   'user' => {
     'username' => 'js_bach',
@@ -45,7 +45,7 @@ If a users controller receives the following params:
 We can coerce them with into `create_params` with the following:
 
 
-```
+```ruby
 # app/controllers/my_controller.rb
 class UsersController < ApplicationController
   def update
@@ -81,7 +81,7 @@ class UsersController < ApplicationController
 The above will return a hash with the `age` integer cast to integer, the `salary` removed, and a `receive_updates` defaulted to `false`. The `root` `user` node will be removed too. If you wish to keep the root node, simply using `attribute` with a `block` will suffice. Below is the output from this:
 
 
-```
+```ruby
 {
   'username' => 'js_bach',
   'full_name' => 'Johann Sebastian Bach',
@@ -98,7 +98,7 @@ The above will return a hash with the `age` integer cast to integer, the `salary
 
 Errors will return in an errors array, and will generate from when `required: true` values are missing:
 
-```
+```ruby
 class MyController
   def update
     MyRecord.update(update_params)
@@ -129,7 +129,7 @@ end
 If you want to raise an error, rather than just return the errors in an array, use the `accept!` method. Will raise `Attribeauty::MissingAttributeError` with the required elements:
 
 
-```
+```ruby
 class MyController
   def update
     MyRecord.update(update_params)
@@ -161,7 +161,7 @@ end
 What if you want to require all attributes? If you pass the `required: true` or `exclude_if: :nil?` with the `accept`, it will be applied to all attributes. 
 You can also exclude a value from this by using the `allows` option.
 
-```
+```ruby
 class MyController
   def update
     MyRecord.update(update_params)
@@ -205,7 +205,7 @@ Initialize with these and they will be cast to that attribute.
 Use `assign_attributes` to update the object.
 
 
-```
+```ruby
 class MyClass < Attribeauty::Base
   attribute :first, :string
   attribute :second, :integer
@@ -227,7 +227,7 @@ instance.seventh # => "Kangaroo"
 
 To add your own types, simply have a class that handles `MyClassName.new.cast(value)`:
 
-```
+```ruby
 Attribeauty.configure do |config|
   config.types[:koala] = MyTypes::Koala
 end
@@ -250,7 +250,7 @@ instance.wild_animal # => "the_wildest_animals_are_koalas"
 ```
 
 To use rails types add to your config:
-```
+```ruby
 # config/initializers/attribeauty.rb
 
 Rails.application.reloader.to_prepare do
@@ -272,13 +272,24 @@ Nope, any ruby program will work with this.
 
 ## Installation
 
-Install the gem and add to the application's Gemfile by executing:
+Add `attribeauty` to your application's Gemfile and `bundle install` the gem:
 
-    $ bundle add attribeauty
+```ruby
+# Gemfile
+gem 'attribeauty'
+```
+
+Use bundle to automatically install the gem and add to the application's Gemfile by executing:
+
+```bash
+$ bundle add attribeauty
+```
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
-    $ gem install attribeauty
+```bash
+$ gem install attribeauty
+```
 
 ## Development
 
