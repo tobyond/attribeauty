@@ -193,7 +193,7 @@ class MyController
   # { user: { username: nil } }
 
   def update_params
-    params_filter.accept do
+    params_filter.accept! do
       root :user do
         attribute :username, :string, required: true
       end
