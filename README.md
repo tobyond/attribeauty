@@ -7,10 +7,7 @@ A lightweight Ruby gem that provides elegant attribute handling, parameter casti
 
 ## Features
 
-Attribeauty offers two main components:
-
-- **Attribeauty::Params**: Type-cast, transform, and validate incoming parameters
-- **Attribeauty::Base**: Create mutable objects with typed attributes
+- **Attribeauty::Params**: Type-cast, transform, and validate incoming parameters for any ruby app.
 
 ## Installation
 
@@ -43,8 +40,11 @@ $ gem install attribeauty
 - Conditional exclusion of nil/empty values
 - Nested data structures (hashes and arrays)
 - Default values
+- Plain ruby compatible
 
 ### Basic Usage
+
+***Note the following examples use rails, but also apply to your Roda/Sinatra/Hanami/Rack app***
 
 In a Rails controller:
 
@@ -155,28 +155,6 @@ end
 ```
 
 Works with both single objects and arrays of objects.
-
-## Attribeauty::Base
-
-### Overview
-
-`Attribeauty::Base` provides a simple way to create mutable objects with type casting:
-
-```ruby
-class Person < Attribeauty::Base
-  attribute :name, :string
-  attribute :age, :integer
-  attribute :active, :boolean, default: true
-end
-
-person = Person.new(name: "Johann", age: "42")
-person.name    # => "Johann"
-person.age     # => 42
-person.active  # => true
-
-person.assign_attributes(age: "43")
-person.age     # => 43
-```
 
 ### Custom Types
 
